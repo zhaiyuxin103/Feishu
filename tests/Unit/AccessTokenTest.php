@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use Mockery;
 use Mockery\Matcher\AnyArgs;
 use Yuxin\Feishu\AccessToken;
 use Yuxin\Feishu\Exceptions\HttpException;
@@ -12,6 +11,24 @@ use Yuxin\Feishu\Exceptions\HttpException;
 beforeEach(function () {
     $this->appId     = 'app_id';
     $this->appSecret = 'app_secret';
+});
+
+test('get http client', function () {
+    $user = new AccessToken($this->appId, $this->appSecret);
+
+    expect($user->getHttpClient())->toBeInstanceOf(Client::class);
+});
+
+test('set guzzle options', function () {
+    $user = new AccessToken($this->appId, $this->appSecret);
+
+    // 设置参数前，timeout 为 null
+    expect($user->getHttpClient()->getConfig('timeout'))->toBeNull();
+
+    // 设置参数
+    $user->setGuzzleOptions(['timeout' => 5000]);
+
+    expect($user->getHttpClient()->getConfig('timeout'))->toBe(5000);
 });
 
 test('get access token', function () {
