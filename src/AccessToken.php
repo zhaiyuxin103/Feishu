@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Yuxin\Feishu;
 
 use GuzzleHttp\Client;
+use Yuxin\Feishu\Exceptions\HttpException;
+
+use function json_decode;
 
 class AccessToken
 {
@@ -37,6 +40,10 @@ class AccessToken
                 'app_secret' => $this->appSecret,
             ],
         ])->getBody()->getContents(), true);
+
+        if (! $response['tenant_access_token']) {
+            throw new HttpException('Failed to get access token');
+        }
 
         return $response['tenant_access_token'];
     }
