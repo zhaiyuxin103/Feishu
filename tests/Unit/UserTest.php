@@ -1,0 +1,52 @@
+<?php
+
+declare(strict_types=1);
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
+use Mockery\Matcher\AnyArgs;
+use Yuxin\Feishu\Contracts\AccessTokenInterface;
+use Yuxin\Feishu\Exceptions\HttpException;
+use Yuxin\Feishu\User;
+
+beforeEach(function () {
+    $this->appId     = 'app_id';
+    $this->appSecret = 'app_secret';
+});
+
+test('get http client', function () {
+    $user = new User($this->appId, $this->appSecret);
+
+    expect($user->getHttpClient())->toBeInstanceOf(Client::class);
+});
+
+test('set guzzle options', function () {
+    $user = new User($this->appId, $this->appSecret);
+
+    // 设置参数前，timeout 为 null
+    expect($user->getHttpClient()->getConfig('timeout'))->toBeNull();
+
+    // 设置参数
+    $user->setGuzzleOptions(['timeout' => 5000]);
+
+    expect($user->getHttpClient()->getConfig('timeout'))->toBe(5000);
+});
+
+test('http exception', function () {
+    expect(function () {
+        // 创建一个模拟的响应对象，模拟空的用户列表
+        $response = new Response(200, [], json_encode(['data' => ['user_list' => []]]));
+
+        $client = Mockery::mock(Client::class);
+        $client->allows()->post(new AnyArgs)->andReturn($response);
+
+        // mock 接口而不是具体类
+        $accessToken = Mockery::mock(AccessTokenInterface::class);
+        $accessToken->allows()->getAccessToken()->andReturn('mock_access_token');
+
+        $user = Mockery::mock(User::class, [$this->appId, $this->appSecret, $accessToken])->makePartial();
+        $user->allows()->getHttpClient()->andReturn($client);
+
+        $user->getId('mock-id');
+    })->toThrow(HttpException::class, 'User not found');
+});
