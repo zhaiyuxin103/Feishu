@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Response;
 use Mockery\Matcher\AnyArgs;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Exceptions\HttpException;
+use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 use Yuxin\Feishu\User;
 
 beforeEach(function () {
@@ -49,4 +50,12 @@ test('http exception', function () {
 
         $user->getId('mock-id');
     })->toThrow(HttpException::class, 'User not found');
+});
+
+test('invalid user id type', function () {
+    $user = new User($this->appId, $this->appSecret);
+
+    expect(function () use ($user) {
+        $user->getId('mock-id', 'invalid-type');
+    })->toThrow(InvalidArgumentException::class, 'Invalid user id type');
 });

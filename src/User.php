@@ -7,10 +7,14 @@ namespace Yuxin\Feishu;
 use GuzzleHttp\Client;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Contracts\UserInterface;
+use Yuxin\Feishu\Enums\UserIDTypeEnum;
 use Yuxin\Feishu\Exceptions\HttpException;
+use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 
+use function array_column;
 use function array_merge;
 use function filter_var;
+use function in_array;
 use function json_decode;
 use function json_encode;
 
@@ -40,6 +44,10 @@ class User implements UserInterface
 
     public function getId(string $username, string $type = 'union_id'): string
     {
+        if (! in_array($type, array_column(UserIDTypeEnum::cases(), 'value'))) {
+            throw new InvalidArgumentException('Invalid user id type');
+        }
+
         $response = json_decode($this->getHttpClient()->post('contact/v3/users/batch_get_id', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->accessTokenInstance->getAccessToken(),
