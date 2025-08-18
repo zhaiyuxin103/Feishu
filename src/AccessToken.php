@@ -41,7 +41,7 @@ class AccessToken
             ],
         ])->getBody()->getContents(), true);
 
-        if (! $response['tenant_access_token']) {
+        if (empty($response['tenant_access_token'])) {
             throw new HttpException('Failed to get access token');
         }
 
