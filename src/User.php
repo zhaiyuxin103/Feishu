@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yuxin\Feishu;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Contracts\UserInterface;
 use Yuxin\Feishu\Enums\UserIDTypeEnum;
@@ -42,6 +43,11 @@ class User implements UserInterface
         $this->guzzleOptions = $options;
     }
 
+    /**
+     * @throws HttpException
+     * @throws GuzzleException
+     * @throws InvalidArgumentException
+     */
     public function getId(string $username, string $type = 'union_id'): string
     {
         if (! in_array($type, array_column(UserIDTypeEnum::cases(), 'value'))) {

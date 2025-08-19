@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yuxin\Feishu;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Exceptions\HttpException;
 
@@ -33,6 +34,10 @@ class AccessToken implements AccessTokenInterface
         $this->guzzleOptions = $options;
     }
 
+    /**
+     * @throws HttpException
+     * @throws GuzzleException
+     */
     public function getAccessToken(): string
     {
         $response = json_decode($this->getHttpClient()->post('auth/v3/tenant_access_token/internal', [
