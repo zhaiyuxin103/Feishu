@@ -16,7 +16,8 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "guzzlehttp/guzzle": "^7.9"
+    "guzzlehttp/guzzle": "^7.9",
+    "illuminate/support": "^12.25"
   },
   "require-dev": {
     "pestphp/pest": "^3.8",
