@@ -1,8 +1,15 @@
 # 飞书 SDK
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/zhaiyuxin/feishu?style=for-the-badge)](https://packagist.org/packages/zhaiyuxin/feishu)
+[![Total Downloads on Packagist](https://img.shields.io/packagist/dt/zhaiyuxin/feishu?style=for-the-badge)](https://packagist.org/packages/zhaiyuxin/feishu)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/zhaiyuxin103/feishu/tests.yml?style=for-the-badge
+)](https://github.com/zhaiyuxin103/feishu/actions)
+[![Code Coverage](https://img.shields.io/codecov/c/github/zhaiyuxin103/feishu?style=for-the-badge)](https://codecov.io/gh/zhaiyuxin103/feishu)
+
 一个简单易用的 PHP 飞书 SDK，支持发送消息、管理群组和用户等功能。
 
-## 功能特性
+## ✨ 特性
 
 - 🚀 简洁的 API 设计，快速上手
 - 📨 发送消息（支持文本、图片、文件、富文本等多种消息类型）
@@ -13,7 +20,13 @@
 - 🧪 完整测试（使用 Pest 进行单元测试）
 - 🏗️ Laravel 集成支持
 
-## 快速开始
+## 📋 系统要求
+
+- PHP >= 8.0
+- Laravel >= 10.0
+- Composer
+
+## 🚀 快速开始
 
 ### 安装
 
@@ -68,7 +81,7 @@ $group = app('feishu.group')->search('群组名称');
 app('feishu.message')->send($group, 'text', '群组消息');
 ```
 
-## 项目结构
+## 📦 项目结构
 
 ```
 src/                    # 核心源码
@@ -91,7 +104,7 @@ workbench/             # Laravel 集成示例
 docs/                  # 详细文档
 ```
 
-## 开发
+## 🔧 开发
 
 ```bash
 # 安装依赖
@@ -107,10 +120,10 @@ composer test
 composer run serve
 ```
 
-## 文档
+## 📚 文档
 
 详细的使用文档和 API 参考请查看 [docs/](https://feishu-nine.vercel.app/) 。
 
-## 许可证
+## 📄 许可证
 
 MIT License
