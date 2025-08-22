@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      vue:
+        specifier: ^3.5.19
+        version: 3.5.19
     devDependencies:
       husky:
         specifier: ^9.1.7
