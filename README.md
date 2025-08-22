@@ -3,8 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/zhaiyuxin/feishu?style=for-the-badge)](https://packagist.org/packages/zhaiyuxin/feishu)
 [![Total Downloads on Packagist](https://img.shields.io/packagist/dt/zhaiyuxin/feishu?style=for-the-badge)](https://packagist.org/packages/zhaiyuxin/feishu)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/zhaiyuxin103/feishu/tests.yml?style=for-the-badge
-)](https://github.com/zhaiyuxin103/feishu/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/zhaiyuxin103/feishu/tests.yml?style=for-the-badge)](https://github.com/zhaiyuxin103/feishu/actions)
 [![Code Coverage](https://img.shields.io/codecov/c/github/zhaiyuxin103/feishu?style=for-the-badge)](https://codecov.io/gh/zhaiyuxin103/feishu)
 
 一个简单易用的 PHP 飞书 SDK，支持发送消息、管理群组和用户等功能。
@@ -80,6 +79,9 @@ app('feishu.message')->send('user_id', 'text', 'Hello, world!');
 $group = app('feishu.group')->search('群组名称');
 app('feishu.message')->send($group, 'text', '群组消息');
 ```
+
+> [!TIP]
+> 💡 **提示**: 关于消息内容结构的详细说明，请参考 [飞书官方文档](https://open.feishu.cn/document/server-docs/im-v1/message-content-description/create_json)。
 
 ## 📦 项目结构
 

@@ -103,6 +103,10 @@ $userId = $user->getId('13800138000', UserIDTypeEnum::UnionID->value);
 
 ## 消息类型
 
+:::tip
+💡 **提示**: 关于消息内容结构的详细说明，请参考 [飞书官方文档](https://open.feishu.cn/document/server-docs/im-v1/message-content-description/create_json)。
+:::
+
 ### 文本消息
 
 最简单的消息类型，支持纯文本内容。

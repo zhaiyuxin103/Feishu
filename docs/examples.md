@@ -68,6 +68,10 @@ echo "群组消息发送成功！\n";
 
 ## 消息类型示例
 
+:::tip
+💡 **提示**: 关于消息内容结构的详细说明，请参考 [飞书官方文档](https://open.feishu.cn/document/server-docs/im-v1/message-content-description/create_json)。
+:::
+
 ### 富文本消息
 
 ```php
