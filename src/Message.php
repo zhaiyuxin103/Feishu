@@ -118,7 +118,7 @@ class Message
             throw new HttpException($response['msg'] ?? 'Unknown error', $response['code'] ?? 0);
         }
 
-        return ! $response['code'];
+        return true;
     }
 
     /**

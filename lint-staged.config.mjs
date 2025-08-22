@@ -3,7 +3,10 @@
  * @type {import('lint-staged').Configuration}
  */
 export default {
-  '*.php': ['./vendor/bin/pint'],
+  '*.php': [
+    './vendor/bin/pint',
+    'vendor/bin/phpstan analyse --memory-limit=2G',
+  ],
   '*.{js,mjs,jsx,ts,tsx,json,css,scss,md,yml,yaml,html,vue}': [
     'prettier . --write',
   ],
