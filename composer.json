@@ -1,33 +1,63 @@
 {
-  "name": "zhaiyuxin/feishu",
-  "type": "library",
-  "license": "MIT",
-  "autoload": {
-    "psr-4": {
-      "Yuxin\\Feishu\\": "src/",
-      "Tests\\": "tests/"
+    "name": "zhaiyuxin/feishu",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Yuxin\\Feishu\\": "src/", 
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "YuXin Zhai",
+            "email": "zhaiyuxin103@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "guzzlehttp/guzzle": "^7.9",
+        "illuminate/support": "^12.25"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.8",
+        "mockery/mockery": "^1.6",
+        "laravel/pint": "^1.24",
+        "phpstan/phpstan": "^2.1",
+        "orchestra/testbench": "^10.6"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": [
+            "@php vendor/bin/pint --ansi",
+            "@php vendor/bin/phpstan analyse --verbose --ansi"
+        ],
+        "test": [
+            "@clear",
+            "@php vendor/bin/pest"
+        ]
     }
-  },
-  "authors": [
-    {
-      "name": "YuXin Zhai",
-      "email": "zhaiyuxin103@hotmail.com"
-    }
-  ],
-  "minimum-stability": "stable",
-  "require": {
-    "guzzlehttp/guzzle": "^7.9",
-    "illuminate/support": "^12.25"
-  },
-  "require-dev": {
-    "pestphp/pest": "^3.8",
-    "mockery/mockery": "^1.6",
-    "laravel/pint": "^1.24",
-    "phpstan/phpstan": "^2.1"
-  },
-  "config": {
-    "allow-plugins": {
-      "pestphp/pest-plugin": true
-    }
-  }
 }
