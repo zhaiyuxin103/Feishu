@@ -1,0 +1,53 @@
+# github action that checks code with Rector
+name: Rector
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  rector:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.2]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: json, dom, curl, libxml, mbstring
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        uses: 'ramsey/composer-install@v3'
+
+      - name: Install Pint
+        run: composer global require laravel/pint
+
+      - name: Run Rector
+        run: vendor/bin/rector --ansi
+
+      - name: Run Pint
+        run: pint
+
+      - name: Commit rector fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '[rector] Rector fixes'
+          commit_author: 'GitHub Action <actions@github.com>'
+          commit_user_email: 'action@github.com'
