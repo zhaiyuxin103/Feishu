@@ -14,7 +14,7 @@ use Yuxin\Feishu\Group;
 
 use function json_encode;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->appId       = 'app_id';
     $this->appSecret   = 'app_secret';
     $this->accessToken = 'mock_access_token';
@@ -27,17 +27,17 @@ beforeEach(function () {
     $this->user = Mockery::mock(UserInterface::class);
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });
 
-test('get http client', function () {
+test('get http client', function (): void {
     $group = new Group($this->appId, $this->appSecret);
 
     expect($group->getHttpClient())->toBeInstanceOf(Client::class);
 });
 
-test('set guzzle options', function () {
+test('set guzzle options', function (): void {
     $group = new Group($this->appId, $this->appSecret);
 
     // 设置参数前，timeout 为 null
@@ -49,22 +49,22 @@ test('set guzzle options', function () {
     expect($group->getHttpClient()->getConfig('timeout'))->toBe(5000);
 });
 
-describe('instance', function () {
-    test('with injected', function () {
+describe('instance', function (): void {
+    test('with injected', function (): void {
         $group = new Group($this->appId, $this->appSecret, $this->accessToken, $this->user);
 
         expect($group)->toBeInstanceOf(Group::class);
     });
 
-    test('without injected', function () {
+    test('without injected', function (): void {
         $group = new Group($this->appId, $this->appSecret);
 
         expect($group)->toBeInstanceOf(Group::class);
     });
 });
 
-describe('search', function () {
-    test('success', function () {
+describe('search', function (): void {
+    test('success', function (): void {
         $response = new Response(200, [], json_encode([
             'code' => 0,
             'msg'  => 'success',
@@ -79,8 +79,8 @@ describe('search', function () {
             ],
         ]));
 
-        $client = Mockery::mock(Client::class);
-        $client->shouldReceive('get')
+        $mock = Mockery::mock(Client::class);
+        $mock->shouldReceive('get')
             ->with('im/v1/chats/search', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->accessToken,
@@ -93,16 +93,16 @@ describe('search', function () {
             ->once()
             ->andReturn($response);
 
-        $group = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $group->allows()->getHttpClient()->andReturn($client);
+        $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
+        $legacyMock->allows()->getHttpClient()->andReturn($mock);
 
-        $data = $group->search('mock_query');
+        $data = $legacyMock->search('mock_query');
 
         expect($data)->toBe('mock_chat_id');
     });
 
     // 测试传参 user id type
-    test('with user id type', function () {
+    test('with user id type', function (): void {
         $response = new Response(200, [], json_encode([
             'code' => 0,
             'msg'  => 'success',
@@ -117,8 +117,8 @@ describe('search', function () {
             ],
         ]));
 
-        $client = Mockery::mock(Client::class);
-        $client->shouldReceive('get')
+        $mock = Mockery::mock(Client::class);
+        $mock->shouldReceive('get')
             ->with('im/v1/chats/search', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->accessToken,
@@ -131,17 +131,17 @@ describe('search', function () {
             ->once()
             ->andReturn($response);
 
-        $group = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $group->allows()->getHttpClient()->andReturn($client);
+        $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
+        $legacyMock->allows()->getHttpClient()->andReturn($mock);
 
-        $data = $group->search('mock_query', UserIDTypeEnum::UnionID->value);
+        $data = $legacyMock->search('mock_query', UserIDTypeEnum::UnionID->value);
 
         expect($data)->toBe('mock_chat_id');
     });
 });
 
-describe('exception', function () {
-    test('group not found', function () {
+describe('exception', function (): void {
+    test('group not found', function (): void {
         $response = new Response(200, [], json_encode([
             'code' => 0,
             'msg'  => 'success',
@@ -150,27 +150,27 @@ describe('exception', function () {
             ],
         ]));
 
-        $client = Mockery::mock(Client::class);
-        $client->allows()->get(new AnyArgs)->andReturn($response);
+        $mock = Mockery::mock(Client::class);
+        $mock->allows()->get(new AnyArgs)->andReturn($response);
 
-        $group = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $group->allows()->getHttpClient()->andReturn($client);
+        $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
+        $legacyMock->allows()->getHttpClient()->andReturn($mock);
 
-        expect(fn () => $group->search('mock_query'))->toThrow(GroupNotFoundException::class, 'Group not found with query: mock_query');
+        expect(fn () => $legacyMock->search('mock_query'))->toThrow(GroupNotFoundException::class, 'Group not found with query: mock_query');
     });
 
-    test('http', function () {
+    test('http', function (): void {
         $response = new Response(200, [], json_encode([
             'code' => 400,
             'msg'  => 'Bad Request',
         ]));
 
-        $client = Mockery::mock(Client::class);
-        $client->allows()->get(new AnyArgs)->andReturn($response);
+        $mock = Mockery::mock(Client::class);
+        $mock->allows()->get(new AnyArgs)->andReturn($response);
 
-        $group = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $group->allows()->getHttpClient()->andReturn($client);
+        $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
+        $legacyMock->allows()->getHttpClient()->andReturn($mock);
 
-        expect(fn () => $group->search('mock_query'))->toThrow(HttpException::class, 'Failed to search groups: Bad Request');
+        expect(fn () => $legacyMock->search('mock_query'))->toThrow(HttpException::class, 'Failed to search groups: Bad Request');
     });
 });

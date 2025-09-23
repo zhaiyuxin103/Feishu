@@ -10,18 +10,18 @@ use Yuxin\Feishu\Exceptions\HttpException;
 use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 use Yuxin\Feishu\User;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->appId     = 'app_id';
     $this->appSecret = 'app_secret';
 });
 
-test('get http client', function () {
+test('get http client', function (): void {
     $user = new User($this->appId, $this->appSecret);
 
     expect($user->getHttpClient())->toBeInstanceOf(Client::class);
 });
 
-test('set guzzle options', function () {
+test('set guzzle options', function (): void {
     $user = new User($this->appId, $this->appSecret);
 
     // 设置参数前，timeout 为 null
@@ -33,29 +33,29 @@ test('set guzzle options', function () {
     expect($user->getHttpClient()->getConfig('timeout'))->toBe(5000);
 });
 
-test('http exception', function () {
-    expect(function () {
+test('http exception', function (): void {
+    expect(function (): void {
         // 创建一个模拟的响应对象，模拟空的用户列表
         $response = new Response(200, [], json_encode(['data' => ['user_list' => []]]));
 
-        $client = Mockery::mock(Client::class);
-        $client->allows()->post(new AnyArgs)->andReturn($response);
+        $mock = Mockery::mock(Client::class);
+        $mock->allows()->post(new AnyArgs)->andReturn($response);
 
         // mock 接口而不是具体类
         $accessToken = Mockery::mock(AccessTokenInterface::class);
         $accessToken->allows()->getAccessToken()->andReturn('mock_access_token');
 
-        $user = Mockery::mock(User::class, [$this->appId, $this->appSecret, $accessToken])->makePartial();
-        $user->allows()->getHttpClient()->andReturn($client);
+        $legacyMock = Mockery::mock(User::class, [$this->appId, $this->appSecret, $accessToken])->makePartial();
+        $legacyMock->allows()->getHttpClient()->andReturn($mock);
 
-        $user->getId('mock-id');
+        $legacyMock->getId('mock-id');
     })->toThrow(HttpException::class, 'User not found');
 });
 
-test('invalid user id type', function () {
+test('invalid user id type', function (): void {
     $user = new User($this->appId, $this->appSecret);
 
-    expect(function () use ($user) {
+    expect(function () use ($user): void {
         $user->getId('mock-id', 'invalid-type');
     })->toThrow(InvalidArgumentException::class, 'Invalid user id type');
 });

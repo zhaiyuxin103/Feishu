@@ -8,18 +8,18 @@ use Mockery\Matcher\AnyArgs;
 use Yuxin\Feishu\AccessToken;
 use Yuxin\Feishu\Exceptions\HttpException;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->appId     = 'app_id';
     $this->appSecret = 'app_secret';
 });
 
-test('get http client', function () {
+test('get http client', function (): void {
     $user = new AccessToken($this->appId, $this->appSecret);
 
     expect($user->getHttpClient())->toBeInstanceOf(Client::class);
 });
 
-test('set guzzle options', function () {
+test('set guzzle options', function (): void {
     $user = new AccessToken($this->appId, $this->appSecret);
 
     // 设置参数前，timeout 为 null
@@ -31,29 +31,29 @@ test('set guzzle options', function () {
     expect($user->getHttpClient()->getConfig('timeout'))->toBe(5000);
 });
 
-test('get access token', function () {
+test('get access token', function (): void {
     // 创建模拟接口响应值
     $response = new Response(200, [], json_encode(['tenant_access_token' => 'mock_access_token']));
 
     // 创建模拟的 Guzzle HTTP 客户端
-    $client = Mockery::mock(Client::class);
+    $mock = Mockery::mock(Client::class);
 
     // 配置客户端的预期行为
-    $client->allows()->post(new AnyArgs)->andReturn($response);
+    $mock->allows()->post(new AnyArgs)->andReturn($response);
 
     // 将 `getHttpClient` 方法替换为使用模拟客户端
-    $accessToken = Mockery::mock(AccessToken::class, [$this->appId, $this->appSecret])->makePartial();
+    $legacyMock = Mockery::mock(AccessToken::class, [$this->appId, $this->appSecret])->makePartial();
     // $client 为上面创建的模拟实例
-    $accessToken->allows()->getHttpClient()->andReturn($client);
+    $legacyMock->allows()->getHttpClient()->andReturn($mock);
 
     // 然后调用 getAccessToken 方法，并断言返回值为模拟的返回值
-    expect($accessToken->getAccessToken())->toBe('mock_access_token');
+    expect($legacyMock->getAccessToken())->toBe('mock_access_token');
 });
 
-test('http exception', function () {
-    expect(function () {
-        $client = Mockery::mock(Client::class);
-        $client->allows()->post(new AnyArgs)->andReturn([]);
+test('http exception', function (): void {
+    expect(function (): void {
+        $mock = Mockery::mock(Client::class);
+        $mock->allows()->post(new AnyArgs)->andReturn([]);
 
         $accessToken = new AccessToken($this->appId, $this->appSecret);
         $accessToken->getAccessToken();
