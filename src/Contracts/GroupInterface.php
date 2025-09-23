@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Yuxin\Feishu\Contracts;
 
 use Yuxin\Feishu\Enums\UserIDTypeEnum;
+use Yuxin\Feishu\HttpClient;
 
 interface GroupInterface
 {
+    public function getHttpClient(): HttpClient;
+
+    public function setGuzzleOptions(array $options): void;
+
     /**
      * 搜索群组
      *
