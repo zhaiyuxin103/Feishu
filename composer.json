@@ -6,7 +6,10 @@
         "psr-4": {
             "Yuxin\\Feishu\\": "src/", 
             "Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "authors": [
         {
