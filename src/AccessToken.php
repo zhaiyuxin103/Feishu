@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yuxin\Feishu;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -18,28 +17,28 @@ class AccessToken implements AccessTokenInterface
 {
     protected const CACHE_PREFIX = 'feishu';
 
-    protected array $guzzleOptions = [];
+    protected HttpClient $httpClient;
 
     protected CacheInterface $cache;
 
     public function __construct(
         protected string $appId,
         protected string $appSecret,
-        ?CacheInterface $cache = null
+        ?CacheInterface $cache = null,
+        ?HttpClient $httpClient = null
     ) {
-        $this->cache = $cache ?? new Psr16Cache(new FilesystemAdapter(namespace: 'feishu', defaultLifetime: 3600));
+        $this->cache      = $cache      ?? new Psr16Cache(new FilesystemAdapter(namespace: 'feishu', defaultLifetime: 3600));
+        $this->httpClient = $httpClient ?? new HttpClient;
     }
 
-    public function getHttpClient(): Client
+    public function getHttpClient(): HttpClient
     {
-        return new Client(array_merge($this->guzzleOptions, [
-            'base_uri' => 'https://open.feishu.cn/open-apis/',
-        ]));
+        return $this->httpClient;
     }
 
     public function setGuzzleOptions(array $options): void
     {
-        $this->guzzleOptions = $options;
+        $this->httpClient->setOptions($options);
     }
 
     public function getKey(): string
@@ -64,7 +63,7 @@ class AccessToken implements AccessTokenInterface
     public function getAccessToken(): string
     {
         // Get new token from API
-        $response = json_decode($this->getHttpClient()->post('auth/v3/tenant_access_token/internal', [
+        $response = json_decode($this->getHttpClient()->getClient()->post('auth/v3/tenant_access_token/internal', [
             'form_params' => [
                 'app_id'     => $this->appId,
                 'app_secret' => $this->appSecret,

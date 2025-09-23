@@ -25,7 +25,8 @@ class Feishu
         return new AccessToken(
             config('feishu.app_id'),
             config('feishu.app_secret'),
-            $this->app->make('cache.store')
+            $this->app->make('cache.store'),
+            $this->app->make(HttpClient::class),
         );
     }
 
@@ -34,7 +35,9 @@ class Feishu
         return new Group(
             config('feishu.app_id'),
             config('feishu.app_secret'),
-            $this->accessToken()
+            $this->accessToken(),
+            null,
+            $this->app->make(HttpClient::class),
         );
     }
 
@@ -43,7 +46,9 @@ class Feishu
         return new Message(
             config('feishu.app_id'),
             config('feishu.app_secret'),
-            $this->accessToken()
+            $this->accessToken(),
+            null,
+            $this->app->make(HttpClient::class),
         );
     }
 
@@ -52,7 +57,8 @@ class Feishu
         return new User(
             config('feishu.app_id'),
             config('feishu.app_secret'),
-            $this->accessToken()
+            $this->accessToken(),
+            $this->app->make(HttpClient::class),
         );
     }
 }

@@ -8,7 +8,10 @@
       "Bash(find:*)",
       "Bash(composer install:*)",
       "Bash(composer update:*)",
-      "Bash(composer:*)"
+      "Bash(composer:*)",
+      "Bash(./vendor/bin/pest:*)",
+      "Bash(php:*)",
+      "Bash(vendor/bin/phpstan)"
     ],
     "deny": [],
     "ask": []

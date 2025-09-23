@@ -30,6 +30,7 @@ class ServiceProvider extends BaseServiceProvider
     private function registerFeishu()
     {
         $this->app->singleton('feishu', fn ($app) => new Feishu($app));
+        $this->app->singleton(HttpClient::class, fn () => new HttpClient);
     }
 
     private function registerPublications()

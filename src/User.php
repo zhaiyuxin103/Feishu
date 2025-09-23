@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yuxin\Feishu;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Contracts\UserInterface;
@@ -13,7 +12,6 @@ use Yuxin\Feishu\Exceptions\HttpException;
 use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 
 use function array_column;
-use function array_merge;
 use function filter_var;
 use function in_array;
 use function json_decode;
@@ -21,26 +19,26 @@ use function json_encode;
 
 class User implements UserInterface
 {
-    protected array $guzzleOptions = [];
+    protected HttpClient $httpClient;
 
     public function __construct(
         protected string $appId,
         protected string $appSecret,
         protected ?AccessTokenInterface $accessTokenInstance = null,
+        ?HttpClient $httpClient = null
     ) {
         $this->accessTokenInstance = $accessTokenInstance ?: new AccessToken($this->appId, $this->appSecret);
+        $this->httpClient          = $httpClient ?? new HttpClient;
     }
 
-    public function getHttpClient(): Client
+    public function getHttpClient(): HttpClient
     {
-        return new Client(array_merge($this->guzzleOptions, [
-            'base_uri' => 'https://open.feishu.cn/open-apis/',
-        ]));
+        return $this->httpClient;
     }
 
     public function setGuzzleOptions(array $options): void
     {
-        $this->guzzleOptions = $options;
+        $this->httpClient->setOptions($options);
     }
 
     /**
@@ -54,7 +52,7 @@ class User implements UserInterface
             throw new InvalidArgumentException('Invalid user id type');
         }
 
-        $response = json_decode($this->getHttpClient()->post('contact/v3/users/batch_get_id', [
+        $response = json_decode($this->getHttpClient()->getClient()->post('contact/v3/users/batch_get_id', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->accessTokenInstance->getToken(),
             ],

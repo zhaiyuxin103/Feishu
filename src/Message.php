@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yuxin\Feishu;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Contracts\UserInterface;
@@ -16,28 +15,28 @@ use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 
 class Message
 {
-    protected array $guzzleOptions = [];
+    protected HttpClient $httpClient;
 
     public function __construct(
         protected string $appId,
         protected string $appSecret,
         protected ?AccessTokenInterface $accessTokenInstance = null,
         protected ?UserInterface $userInstance = null,
+        ?HttpClient $httpClient = null
     ) {
         $this->accessTokenInstance = $accessTokenInstance ?: new AccessToken($this->appId, $this->appSecret);
         $this->userInstance        = $userInstance ?: new User($this->appId, $this->appSecret);
+        $this->httpClient          = $httpClient ?? new HttpClient;
     }
 
-    public function getHttpClient(): Client
+    public function getHttpClient(): HttpClient
     {
-        return new Client(array_merge($this->guzzleOptions, [
-            'base_uri' => 'https://open.feishu.cn/open-apis/',
-        ]));
+        return $this->httpClient;
     }
 
     public function setGuzzleOptions(array $options): void
     {
-        $this->guzzleOptions = $options;
+        $this->httpClient->setOptions($options);
     }
 
     /**
@@ -98,7 +97,7 @@ class Message
     ): bool {
         $this->validateParameters($messageType, $userIdType, $receiveIdType);
 
-        $response = json_decode($this->getHttpClient()->post('im/v1/messages', [
+        $response = json_decode($this->getHttpClient()->getClient()->post('im/v1/messages', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->accessTokenInstance->getToken(),
             ],

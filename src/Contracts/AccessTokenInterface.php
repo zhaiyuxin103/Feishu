@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Yuxin\Feishu\Contracts;
 
-use GuzzleHttp\Client;
+use Yuxin\Feishu\HttpClient;
 
 interface AccessTokenInterface
 {
     public function getKey(): string;
 
-    public function getHttpClient(): Client;
+    public function getHttpClient(): HttpClient;
 
     public function getAccessToken(): string;
 

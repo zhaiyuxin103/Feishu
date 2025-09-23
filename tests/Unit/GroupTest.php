@@ -11,6 +11,7 @@ use Yuxin\Feishu\Enums\UserIDTypeEnum;
 use Yuxin\Feishu\Exceptions\GroupNotFoundException;
 use Yuxin\Feishu\Exceptions\HttpException;
 use Yuxin\Feishu\Group;
+use Yuxin\Feishu\HttpClient;
 
 use function json_encode;
 
@@ -34,19 +35,20 @@ afterEach(function (): void {
 test('get http client', function (): void {
     $group = new Group($this->appId, $this->appSecret);
 
-    expect($group->getHttpClient())->toBeInstanceOf(Client::class);
+    expect($group->getHttpClient())->toBeInstanceOf(HttpClient::class);
+    expect($group->getHttpClient()->getClient())->toBeInstanceOf(Client::class);
 });
 
 test('set guzzle options', function (): void {
     $group = new Group($this->appId, $this->appSecret);
 
     // 设置参数前，timeout 为 null
-    expect($group->getHttpClient()->getConfig('timeout'))->toBeNull();
+    expect($group->getHttpClient()->getClient()->getConfig('timeout'))->toBeNull();
 
     // 设置参数
     $group->setGuzzleOptions(['timeout' => 5000]);
 
-    expect($group->getHttpClient()->getConfig('timeout'))->toBe(5000);
+    expect($group->getHttpClient()->getClient()->getConfig('timeout'))->toBe(5000);
 });
 
 describe('instance', function (): void {
@@ -79,8 +81,8 @@ describe('search', function (): void {
             ],
         ]));
 
-        $mock = Mockery::mock(Client::class);
-        $mock->shouldReceive('get')
+        $mockGuzzle = Mockery::mock(Client::class);
+        $mockGuzzle->shouldReceive('get')
             ->with('im/v1/chats/search', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->accessToken,
@@ -93,8 +95,11 @@ describe('search', function (): void {
             ->once()
             ->andReturn($response);
 
+        $mockHttpClient = Mockery::mock(HttpClient::class);
+        $mockHttpClient->shouldReceive('getClient')->andReturn($mockGuzzle);
+
         $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $legacyMock->allows()->getHttpClient()->andReturn($mock);
+        $legacyMock->allows()->getHttpClient()->andReturn($mockHttpClient);
 
         $data = $legacyMock->search('mock_query');
 
@@ -117,8 +122,8 @@ describe('search', function (): void {
             ],
         ]));
 
-        $mock = Mockery::mock(Client::class);
-        $mock->shouldReceive('get')
+        $mockGuzzle = Mockery::mock(Client::class);
+        $mockGuzzle->shouldReceive('get')
             ->with('im/v1/chats/search', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->accessToken,
@@ -131,8 +136,11 @@ describe('search', function (): void {
             ->once()
             ->andReturn($response);
 
+        $mockHttpClient = Mockery::mock(HttpClient::class);
+        $mockHttpClient->shouldReceive('getClient')->andReturn($mockGuzzle);
+
         $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $legacyMock->allows()->getHttpClient()->andReturn($mock);
+        $legacyMock->allows()->getHttpClient()->andReturn($mockHttpClient);
 
         $data = $legacyMock->search('mock_query', UserIDTypeEnum::UnionID->value);
 
@@ -150,11 +158,14 @@ describe('exception', function (): void {
             ],
         ]));
 
-        $mock = Mockery::mock(Client::class);
-        $mock->allows()->get(new AnyArgs)->andReturn($response);
+        $mockGuzzle = Mockery::mock(Client::class);
+        $mockGuzzle->allows()->get(new AnyArgs)->andReturn($response);
+
+        $mockHttpClient = Mockery::mock(HttpClient::class);
+        $mockHttpClient->shouldReceive('getClient')->andReturn($mockGuzzle);
 
         $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $legacyMock->allows()->getHttpClient()->andReturn($mock);
+        $legacyMock->allows()->getHttpClient()->andReturn($mockHttpClient);
 
         expect(fn () => $legacyMock->search('mock_query'))->toThrow(GroupNotFoundException::class, 'Group not found with query: mock_query');
     });
@@ -165,11 +176,14 @@ describe('exception', function (): void {
             'msg'  => 'Bad Request',
         ]));
 
-        $mock = Mockery::mock(Client::class);
-        $mock->allows()->get(new AnyArgs)->andReturn($response);
+        $mockGuzzle = Mockery::mock(Client::class);
+        $mockGuzzle->allows()->get(new AnyArgs)->andReturn($response);
+
+        $mockHttpClient = Mockery::mock(HttpClient::class);
+        $mockHttpClient->shouldReceive('getClient')->andReturn($mockGuzzle);
 
         $legacyMock = Mockery::mock(Group::class, [$this->appId, $this->appSecret, $this->accessToken])->makePartial();
-        $legacyMock->allows()->getHttpClient()->andReturn($mock);
+        $legacyMock->allows()->getHttpClient()->andReturn($mockHttpClient);
 
         expect(fn () => $legacyMock->search('mock_query'))->toThrow(HttpException::class, 'Failed to search groups: Bad Request');
     });
