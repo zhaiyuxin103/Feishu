@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": ["Bash(composer test:*)", "Bash(composer dump-autoload:*)"],
+    "deny": [],
+    "ask": []
+  }
+}
