@@ -100,7 +100,7 @@ class Message
 
         $response = json_decode($this->getHttpClient()->post('im/v1/messages', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->accessTokenInstance->getAccessToken(),
+                'Authorization' => 'Bearer ' . $this->accessTokenInstance->getToken(),
             ],
             'query' => [
                 'receive_id_type' => $receiveIdType,

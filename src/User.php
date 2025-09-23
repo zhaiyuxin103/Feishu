@@ -56,7 +56,7 @@ class User implements UserInterface
 
         $response = json_decode($this->getHttpClient()->post('contact/v3/users/batch_get_id', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->accessTokenInstance->getAccessToken(),
+                'Authorization' => 'Bearer ' . $this->accessTokenInstance->getToken(),
             ],
             'query' => [
                 'user_id_type' => $type,

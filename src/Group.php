@@ -54,7 +54,7 @@ class Group implements GroupInterface
     {
         $response = json_decode($this->getHttpClient()->get('im/v1/chats/search', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->accessTokenInstance->getAccessToken(),
+                'Authorization' => 'Bearer ' . $this->accessTokenInstance->getToken(),
             ],
             'query' => [
                 'user_id_type' => $userIdType,

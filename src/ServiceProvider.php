@@ -32,10 +32,15 @@ class ServiceProvider extends BaseServiceProvider
 
     private function registerAccessToken()
     {
-        $this->app->singleton(AccessToken::class, fn () => new AccessToken(
-            config('feishu.app_id'),
-            config('feishu.app_secret')
-        ));
+        $this->app->singleton(AccessToken::class, function ($app) {
+            $accessToken = new AccessToken(
+                config('feishu.app_id'),
+                config('feishu.app_secret'),
+                $app->make('cache.store')
+            );
+
+            return $accessToken;
+        });
 
         $this->app->alias(AccessToken::class, 'feishu.access_token');
     }

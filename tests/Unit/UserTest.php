@@ -43,7 +43,7 @@ test('http exception', function (): void {
 
         // mock 接口而不是具体类
         $accessToken = Mockery::mock(AccessTokenInterface::class);
-        $accessToken->allows()->getAccessToken()->andReturn('mock_access_token');
+        $accessToken->allows()->getToken()->andReturn('mock_access_token');
 
         $legacyMock = Mockery::mock(User::class, [$this->appId, $this->appSecret, $accessToken])->makePartial();
         $legacyMock->allows()->getHttpClient()->andReturn($mock);

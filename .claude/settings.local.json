@@ -1,6 +1,14 @@
 {
   "permissions": {
-    "allow": ["Bash(composer test:*)", "Bash(composer dump-autoload:*)"],
+    "allow": [
+      "Bash(composer test:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(composer lint:*)",
+      "Bash(php artisan config:cache:*)",
+      "Bash(find:*)",
+      "Bash(composer install:*)",
+      "Bash(composer update:*)"
+    ],
     "deny": [],
     "ask": []
   }

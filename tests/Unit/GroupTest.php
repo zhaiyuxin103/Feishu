@@ -21,7 +21,7 @@ beforeEach(function (): void {
 
     // Mock AccessToken
     $this->accessToken = Mockery::mock(AccessTokenInterface::class);
-    $this->accessToken->allows()->getAccessToken()->andReturn($this->accessToken);
+    $this->accessToken->allows()->getToken()->andReturn($this->accessToken);
 
     // Mock User
     $this->user = Mockery::mock(UserInterface::class);
