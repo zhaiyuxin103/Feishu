@@ -10,6 +10,7 @@ use Yuxin\Feishu\Contracts\UserInterface;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
 use Yuxin\Feishu\Enums\UserIDTypeEnum;
+use Yuxin\Feishu\Events\MessageSent;
 use Yuxin\Feishu\Exceptions\HttpException;
 use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 
@@ -116,6 +117,8 @@ class Message
         if ($response['code'] !== 0) {
             throw new HttpException($response['msg'] ?? 'Unknown error', $response['code'] ?? 0);
         }
+
+        event(new MessageSent($to, $messageType, $response['data']['message_id'] ?? null));
 
         return true;
     }

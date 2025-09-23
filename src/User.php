@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Contracts\UserInterface;
 use Yuxin\Feishu\Enums\UserIDTypeEnum;
+use Yuxin\Feishu\Events\UserSearched;
 use Yuxin\Feishu\Exceptions\HttpException;
 use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 
@@ -71,6 +72,10 @@ class User implements UserInterface
             throw new HttpException('User not found');
         }
 
-        return $response['data']['user_list'][0]['user_id'];
+        $userId = $response['data']['user_list'][0]['user_id'];
+
+        event(new UserSearched($username, $userId));
+
+        return $userId;
     }
 }

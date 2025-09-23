@@ -11,7 +11,10 @@
       "Bash(composer:*)",
       "Bash(./vendor/bin/pest:*)",
       "Bash(php:*)",
-      "Bash(vendor/bin/phpstan)"
+      "Bash(vendor/bin/phpstan)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

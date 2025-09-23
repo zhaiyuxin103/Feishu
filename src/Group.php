@@ -9,6 +9,7 @@ use Yuxin\Feishu\Contracts\AccessTokenInterface;
 use Yuxin\Feishu\Contracts\GroupInterface;
 use Yuxin\Feishu\Contracts\UserInterface;
 use Yuxin\Feishu\Enums\UserIDTypeEnum;
+use Yuxin\Feishu\Events\GroupSearched;
 use Yuxin\Feishu\Exceptions\GroupNotFoundException;
 use Yuxin\Feishu\Exceptions\HttpException;
 
@@ -69,6 +70,10 @@ class Group implements GroupInterface
             throw new GroupNotFoundException("Group not found with query: {$query}");
         }
 
-        return $response['data']['items'][0]['chat_id'];
+        $chatId = $response['data']['items'][0]['chat_id'];
+
+        event(new GroupSearched($query, $chatId));
+
+        return $chatId;
     }
 }

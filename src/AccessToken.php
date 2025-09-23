@@ -9,6 +9,7 @@ use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 use Yuxin\Feishu\Contracts\AccessTokenInterface;
+use Yuxin\Feishu\Events\AccessTokenGenerated;
 use Yuxin\Feishu\Exceptions\HttpException;
 
 use function json_decode;
@@ -50,6 +51,8 @@ class AccessToken implements AccessTokenInterface
     {
         $token = $this->cache->get($this->getKey());
         if ($token && is_string($token)) {
+            event(new AccessTokenGenerated($token, false));
+
             return $token;
         }
 
@@ -76,6 +79,8 @@ class AccessToken implements AccessTokenInterface
         $token = $response['tenant_access_token'];
 
         $this->cache->set($this->getKey(), $token, (int) $response['expire']);
+
+        event(new AccessTokenGenerated($token, false));
 
         return $token;
     }
