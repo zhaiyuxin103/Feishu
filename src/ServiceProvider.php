@@ -24,58 +24,12 @@ class ServiceProvider extends BaseServiceProvider
 
     private function registerBindings()
     {
-        $this->registerAccessToken();
-        $this->registerGroup();
-        $this->registerMessage();
-        $this->registerUser();
+        $this->registerFeishu();
     }
 
-    private function registerAccessToken()
+    private function registerFeishu()
     {
-        $this->app->singleton(AccessToken::class, function ($app) {
-            $accessToken = new AccessToken(
-                config('feishu.app_id'),
-                config('feishu.app_secret'),
-                $app->make('cache.store')
-            );
-
-            return $accessToken;
-        });
-
-        $this->app->alias(AccessToken::class, 'feishu.access_token');
-    }
-
-    private function registerGroup()
-    {
-        $this->app->singleton(Group::class, fn () => new Group(
-            config('feishu.app_id'),
-            config('feishu.app_secret'),
-            $this->app->make(AccessToken::class),
-        ));
-
-        $this->app->alias(Group::class, 'feishu.group');
-    }
-
-    private function registerMessage()
-    {
-        $this->app->singleton(Message::class, fn () => new Message(
-            config('feishu.app_id'),
-            config('feishu.app_secret'),
-            $this->app->make(AccessToken::class),
-        ));
-
-        $this->app->alias(Message::class, 'feishu.message');
-    }
-
-    private function registerUser()
-    {
-        $this->app->singleton(User::class, fn () => new User(
-            config('feishu.app_id'),
-            config('feishu.app_secret'),
-            $this->app->make(AccessToken::class),
-        ));
-
-        $this->app->alias(User::class, 'feishu.user');
+        $this->app->singleton('feishu', fn ($app) => new Feishu($app));
     }
 
     private function registerPublications()

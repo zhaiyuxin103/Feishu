@@ -69,6 +69,25 @@ FEISHU_APP_ID=your_app_id
 FEISHU_APP_SECRET=your_app_secret
 ```
 
+使用 Facade（推荐）：
+
+```php
+use Yuxin\Feishu\Facades\Feishu;
+
+// 获取访问令牌
+$token = Feishu::accessToken()->getToken();
+
+// 发送消息
+Feishu::message()->send('user_id', 'text', 'Hello, world!');
+
+// 群组操作
+$chatId = Feishu::group()->search('群组名称');
+Feishu::message()->send($chatId, 'text', '群组消息');
+
+// 用户操作
+$userInfo = Feishu::user()->getInfo('user_id');
+```
+
 使用服务容器：
 
 ```php
@@ -99,6 +118,10 @@ src/                    # 核心源码
 config/                # 配置文件
 └── feishu.php        # 飞书配置
 
+tests/                 # 测试文件
+├── Unit/             # 单元测试
+└── Pest.php          # Pest 配置
+
 workbench/             # Laravel 集成示例
 └── app/Http/Controllers/
     └── MessageController.php
@@ -112,14 +135,17 @@ docs/                  # 详细文档
 # 安装依赖
 composer install
 
-# 代码检查
+# 代码检查 (Pint + PHPStan)
 composer lint
+
+# 代码重构 (Rector)
+composer rector
 
 # 运行测试
 composer test
 
-# 启动开发服务器
-composer run serve
+# 启动开发服务器 (Laravel workbench)
+composer serve
 ```
 
 ## 📚 文档

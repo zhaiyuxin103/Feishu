@@ -7,7 +7,8 @@
       "Bash(php artisan config:cache:*)",
       "Bash(find:*)",
       "Bash(composer install:*)",
-      "Bash(composer update:*)"
+      "Bash(composer update:*)",
+      "Bash(composer:*)"
     ],
     "deny": [],
     "ask": []

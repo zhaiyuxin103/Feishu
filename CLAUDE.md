@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a PHP Feishu (Lark) SDK library that provides a clean interface for interacting with Feishu's messaging and group management APIs. The library supports sending messages, managing groups and users, with automatic access token management.
+This is a PHP Feishu (Lark) SDK library that provides a clean interface for interacting with Feishu's messaging and group management APIs. The library supports sending messages, managing groups and users, with automatic access token management. Features a Laravel Facade for easy access to all functionality.
 
 ## Development Commands
 
@@ -12,6 +12,7 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 
 - `composer install` - Install dependencies
 - `composer lint` - Run code linting (Pint + PHPStan)
+- `composer rector` - Run code refactoring with Rector
 - `composer test` - Run tests with Pest
 - `composer serve` - Start development server (Laravel workbench)
 
@@ -25,7 +26,8 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 
 - Laravel Pint for code formatting
 - PHPStan for static analysis
-- Both run via `composer lint`
+- Rector for automated code refactoring and upgrades
+- All tools run via `composer lint` and `composer rector`
 
 ## Architecture
 
@@ -38,6 +40,8 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 - `Group` (`src/Group.php`) - Group search and management operations
 - `User` (`src/User.php`) - User information and ID management
 - `ServiceProvider` (`src/ServiceProvider.php`) - Laravel integration with dependency injection
+- `Feishu` (`src/Feishu.php`) - Manages access to all Feishu services through a unified interface
+- `Facades/Feishu` (`src/Facades/Feishu.php`) - Laravel Facade for convenient access to Feishu services
 
 **Supporting Structure:**
 
@@ -51,6 +55,8 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 2. **Enum-based Validation**: Uses PHP 8.1+ enums for type-safe parameter validation
 3. **Guzzle HTTP Client**: Configurable HTTP client with consistent base URI and options
 4. **Laravel Integration**: Full service container support with automatic bindings
+5. **Facade Pattern**: Provides a clean, static interface to access all Feishu services
+6. **Manager Pattern**: Feishu centralizes service creation and dependency management
 
 ### API Integration
 
@@ -64,9 +70,29 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 The package provides automatic Laravel integration through:
 
 - Service provider with singleton bindings
+- **Facade Support**: Use `Feishu::accessToken()`, `Feishu::message()`, etc. for clean API access
 - Configuration file publishing
 - Environment variable support (`FEISHU_APP_ID`, `FEISHU_APP_SECRET`)
 - Service container aliases: `feishu.message`, `feishu.group`, `feishu.user`, `feishu.access_token`
+- **Manager Pattern**: Feishu centralizes service creation with lazy loading
+
+**Facade Usage Example:**
+
+```php
+use Yuxin\Feishu\Facades\Feishu;
+
+// Get access token
+$token = Feishu::accessToken()->getToken();
+
+// Send message
+Feishu::message()->send('user_id', 'text', 'Hello!');
+
+// Group operations
+$chatId = Feishu::group()->search('group_name');
+
+// User operations
+$userInfo = Feishu::user()->getInfo('user_id');
+```
 
 ### Testing Strategy
 

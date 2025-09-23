@@ -6,6 +6,7 @@
 - [Group 类](#group-类)
 - [User 类](#user-类)
 - [AccessToken 类](#accesstoken-类)
+- [Feishu Facade](#feishu-facade)
 - [枚举类型](#枚举类型)
 - [异常处理](#异常处理)
 
@@ -242,12 +243,12 @@ public function __construct(string $appId, string $appSecret)
 
 ### 方法
 
-#### getAccessToken()
+#### getToken()
 
 获取访问令牌。
 
 ```php
-public function getAccessToken(): string
+public function getToken(): string
 ```
 
 **返回值：** `string` - 访问令牌
@@ -262,8 +263,118 @@ public function getAccessToken(): string
 use Yuxin\Feishu\AccessToken;
 
 $accessToken = new AccessToken('app_id', 'app_secret');
-$token = $accessToken->getAccessToken();
+$token = $accessToken->getToken();
 echo "访问令牌: " . $token;
+```
+
+## Feishu Facade
+
+Feishu Facade 提供了一个简洁的静态接口来访问所有 Feishu 服务。这是在 Laravel 环境中使用此 SDK 的推荐方式。
+
+### 基本用法
+
+```php
+use Yuxin\Feishu\Facades\Feishu;
+
+// 获取访问令牌
+$token = Feishu::accessToken()->getToken();
+
+// 发送消息
+Feishu::message()->send('user_id', 'text', 'Hello, World!');
+
+// 搜索群组
+$chatId = Feishu::group()->search('群组名称');
+
+// 获取用户信息
+$userId = Feishu::user()->getId('user@example.com');
+```
+
+### 可用方法
+
+#### accessToken()
+
+获取 AccessToken 实例。
+
+```php
+$accessToken = Feishu::accessToken();
+$token = $accessToken->getToken();
+```
+
+#### message()
+
+获取 Message 实例用于发送消息。
+
+```php
+$message = Feishu::message();
+$message->send('user_id', 'text', 'Hello!');
+```
+
+#### group()
+
+获取 Group 实例用于群组管理。
+
+```php
+$group = Feishu::group();
+$chatId = $group->search('群组名称');
+```
+
+#### user()
+
+获取 User 实例用于用户管理。
+
+```php
+$user = Feishu::user();
+$userId = $user->getId('user@example.com');
+```
+
+### 完整示例
+
+```php
+use Yuxin\Feishu\Facades\Feishu;
+use Yuxin\Feishu\Enums\MessageTypeEnum;
+use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
+
+// 1. 获取访问令牌
+$token = Feishu::accessToken()->getToken();
+
+// 2. 搜索群组
+$chatId = Feishu::group()->search('项目讨论组');
+
+// 3. 发送富文本消息到群组
+Feishu::message()->send(
+    $chatId,
+    MessageTypeEnum::Post->value,
+    [
+        'zh_cn' => [
+            'title' => '项目更新',
+            'content' => [
+                [
+                    'tag' => 'text',
+                    'text' => '项目已进入开发阶段，请各位关注进度。'
+                ]
+            ]
+        ]
+    ],
+    'open_id',
+    ReceiveIDTypeEnum::ChatID->value
+);
+
+// 4. 获取用户ID并发送私信
+$userId = Feishu::user()->getId('developer@example.com');
+Feishu::message()->send(
+    $userId,
+    MessageTypeEnum::Text->value,
+    '请查看项目群组的重要通知'
+);
+```
+
+### Laravel 配置
+
+在使用 Facade 之前，请确保已经在 `.env` 文件中配置了飞书应用信息：
+
+```env
+FEISHU_APP_ID=your_app_id
+FEISHU_APP_SECRET=your_app_secret
 ```
 
 ## 枚举类型

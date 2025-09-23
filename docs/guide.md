@@ -21,8 +21,8 @@ composer require zhaiyuxin/feishu
 ### 系统要求
 
 - PHP 8.1 或更高版本
-- Guzzle HTTP 客户端
-- Laravel 12+（可选，用于 Laravel 集成）
+- Composer
+- Laravel 10+（可选，用于 Laravel 集成）
 
 ## 配置
 
@@ -37,8 +37,8 @@ composer require zhaiyuxin/feishu
 在您的 `.env` 文件中添加以下配置：
 
 ```env
-FEISHU_APP_ID=cli_xxxxxxxxxxxxx
-FEISHU_APP_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+FEISHU_APP_ID=your_app_id
+FEISHU_APP_SECRET=your_app_secret
 ```
 
 ### 手动配置
@@ -237,6 +237,37 @@ $message->send(
 php artisan vendor:publish --tag=feishu-config
 ```
 
+### 使用 Facade（推荐）
+
+```php
+use Yuxin\Feishu\Facades\Feishu;
+use Yuxin\Feishu\Enums\MessageTypeEnum;
+use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
+use Yuxin\Feishu\Enums\UserIDTypeEnum;
+
+// 发送消息
+Feishu::message()->send(
+    'user_id',
+    MessageTypeEnum::Text->value,
+    'Hello from Laravel!'
+);
+
+// 搜索群组
+$group = Feishu::group()->search('测试群组');
+
+// 发送群组消息
+Feishu::message()->send(
+    $group,
+    MessageTypeEnum::Text->value,
+    '群组消息',
+    UserIDTypeEnum::OpenID->value,
+    ReceiveIDTypeEnum::ChatID->value
+);
+
+// 获取访问令牌
+$token = Feishu::accessToken()->getToken();
+```
+
 ### 使用服务容器
 
 ```php
@@ -253,15 +284,6 @@ app('feishu.message')->send(
 
 // 搜索群组
 $group = app('feishu.group')->search('测试群组');
-
-// 发送群组消息
-app('feishu.message')->send(
-    $group,
-    MessageTypeEnum::Text->value,
-    '群组消息',
-    UserIDTypeEnum::OpenID->value,
-    ReceiveIDTypeEnum::ChatID->value
-);
 ```
 
 ### 在控制器中使用
@@ -271,6 +293,7 @@ app('feishu.message')->send(
 
 namespace App\Http\Controllers;
 
+use Yuxin\Feishu\Facades\Feishu;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 
 class NotificationController extends Controller
@@ -278,7 +301,7 @@ class NotificationController extends Controller
     public function sendNotification()
     {
         try {
-            app('feishu.message')->send(
+            Feishu::message()->send(
                 'user_id',
                 MessageTypeEnum::Text->value,
                 '您有一条新的通知'
@@ -391,11 +414,13 @@ $message = new Message('hardcoded_app_id', 'hardcoded_app_secret');
 
 ### 4. 性能优化
 
-对于频繁使用的实例，考虑使用单例模式或依赖注入：
+对于频繁使用的实例，考虑使用 Facade 或依赖注入：
 
 ```php
-// 在 Laravel 中使用服务容器
-$message = app('feishu.message');
+// 使用 Facade（推荐）
+use Yuxin\Feishu\Facades\Feishu;
+
+Feishu::message()->send('user_id', 'text', 'Hello');
 
 // 或者使用依赖注入
 public function __construct(
