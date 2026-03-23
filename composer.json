@@ -73,7 +73,11 @@
                 "Yuxin\\Feishu\\ServiceProvider"
             ],
             "aliases": {
-                "Feishu": "Yuxin\\Feishu\\Facades\\Feishu"
+                "Feishu": "Yuxin\\Feishu\\Facades\\Feishu",
+                "Message": "Yuxin\\Feishu\\Facades\\Message",
+                "Group": "Yuxin\\Feishu\\Facades\\Group",
+                "User": "Yuxin\\Feishu\\Facades\\User",
+                "AccessToken": "Yuxin\\Feishu\\Facades\\AccessToken"
             }
         }
     }

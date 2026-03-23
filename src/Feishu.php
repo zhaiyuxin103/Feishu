@@ -9,7 +9,18 @@ use InvalidArgumentException;
 
 class Feishu
 {
-    public function __construct(protected Application $app) {}
+    protected ?AccessToken $accessTokenInstance = null;
+
+    protected ?Group $groupInstance = null;
+
+    protected ?Message $messageInstance = null;
+
+    protected ?User $userInstance = null;
+
+    public function __construct(protected Application $app)
+    {
+        //
+    }
 
     public function __call($method, $parameters)
     {
@@ -22,7 +33,7 @@ class Feishu
 
     public function accessToken(): AccessToken
     {
-        return new AccessToken(
+        return $this->accessTokenInstance ??= new AccessToken(
             config('feishu.app_id'),
             config('feishu.app_secret'),
             $this->app->make('cache.store'),
@@ -32,7 +43,7 @@ class Feishu
 
     public function group(): Group
     {
-        return new Group(
+        return $this->groupInstance ??= new Group(
             config('feishu.app_id'),
             config('feishu.app_secret'),
             $this->accessToken(),
@@ -43,7 +54,7 @@ class Feishu
 
     public function message(): Message
     {
-        return new Message(
+        return $this->messageInstance ??= new Message(
             config('feishu.app_id'),
             config('feishu.app_secret'),
             $this->accessToken(),
@@ -54,7 +65,7 @@ class Feishu
 
     public function user(): User
     {
-        return new User(
+        return $this->userInstance ??= new User(
             config('feishu.app_id'),
             config('feishu.app_secret'),
             $this->accessToken(),

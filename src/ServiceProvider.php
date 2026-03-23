@@ -31,6 +31,17 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->app->singleton('feishu', fn ($app) => new Feishu($app));
         $this->app->singleton(HttpClient::class, fn () => new HttpClient);
+
+        $this->app->singleton('feishu.access_token', fn ($app) => $app->make('feishu')->accessToken());
+        $this->app->singleton('feishu.message', fn ($app) => $app->make('feishu')->message());
+        $this->app->singleton('feishu.group', fn ($app) => $app->make('feishu')->group());
+        $this->app->singleton('feishu.user', fn ($app) => $app->make('feishu')->user());
+
+        $this->app->alias('feishu', Feishu::class);
+        $this->app->alias('feishu.access_token', AccessToken::class);
+        $this->app->alias('feishu.message', Message::class);
+        $this->app->alias('feishu.group', Group::class);
+        $this->app->alias('feishu.user', User::class);
     }
 
     private function registerPublications()

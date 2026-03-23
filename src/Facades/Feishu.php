@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace Yuxin\Feishu\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Yuxin\Feishu\AccessToken;
+use Yuxin\Feishu\Group;
+use Yuxin\Feishu\Message;
+use Yuxin\Feishu\User;
 
 /**
- * @method static \Yuxin\Feishu\AccessToken accessToken()
- * @method static \Yuxin\Feishu\Group group()
- * @method static \Yuxin\Feishu\Message message()
- * @method static \Yuxin\Feishu\User user()
+ * @method static AccessToken accessToken()
+ * @method static Group group()
+ * @method static Message message()
+ * @method static User user()
+ *
+ * @see \Yuxin\Feishu\Feishu
  */
 class Feishu extends Facade
 {
