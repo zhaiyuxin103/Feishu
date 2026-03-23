@@ -108,9 +108,9 @@ class Message
             'body' => json_encode([
                 'receive_id' => $this->getReceiveId($to, $userIdType, $receiveIdType),
                 'msg_type'   => $messageType,
-                'content'    => json_encode([
+                'content'    => $messageType === MessageTypeEnum::Text->value ? json_encode([
                     $messageType => $this->formatContent($content),
-                ]),
+                ]) : json_encode($content),
             ]),
         ])->getBody()->getContents(), true);
 
