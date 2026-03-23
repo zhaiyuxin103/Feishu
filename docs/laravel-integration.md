@@ -1,8 +1,18 @@
 # Laravel 集成示例
 
+## 使用方式
+
+SDK 在 Laravel 中提供了三种使用方式：
+
+| 方式        | 示例                               | 说明               |
+| ----------- | ---------------------------------- | ------------------ |
+| 独立 Facade | `Message::send(...)`               | 最简洁，推荐       |
+| 依赖注入    | `__construct(Message $message)`    | 适合服务类和控制器 |
+| 服务容器    | `app('feishu.message')->send(...)` | 适合动态场景       |
+
 ## 在控制器中使用
 
-### 基本通知控制器
+### 使用独立 Facade
 
 ```php
 <?php
@@ -11,6 +21,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Yuxin\Feishu\Facades\Message;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 
 class NotificationController extends Controller
@@ -23,7 +34,7 @@ class NotificationController extends Controller
         ]);
 
         try {
-            app('feishu.message')->send(
+            Message::send(
                 $request->user_id,
                 MessageTypeEnum::Text->value,
                 $request->message
@@ -45,11 +56,16 @@ class NotificationController extends Controller
 namespace App\Http\Controllers;
 
 use Yuxin\Feishu\Message;
+use Yuxin\Feishu\Group;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
+use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
 
 class NotificationController extends Controller
 {
-    public function __construct(private Message $message) {}
+    public function __construct(
+        private Message $message,
+        private Group $group,
+    ) {}
 
     public function sendNotification(Request $request)
     {
@@ -58,6 +74,23 @@ class NotificationController extends Controller
             MessageTypeEnum::Text->value,
             $request->message
         );
+
+        return response()->json(['success' => true]);
+    }
+
+    public function sendGroupNotification(Request $request)
+    {
+        $chatId = $this->group->search($request->group_name);
+
+        $this->message->send(
+            $chatId,
+            MessageTypeEnum::Text->value,
+            $request->message,
+            'open_id',
+            ReceiveIDTypeEnum::ChatID->value
+        );
+
+        return response()->json(['success' => true]);
     }
 }
 ```
@@ -71,17 +104,20 @@ class NotificationController extends Controller
 
 namespace App\Services;
 
+use Yuxin\Feishu\Message;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
+    public function __construct(private Message $message) {}
+
     public function sendTaskReminder(string $userId, array $taskData): bool
     {
         try {
             $content = $this->buildTaskReminderContent($taskData);
 
-            app('feishu.message')->send(
+            $this->message->send(
                 $userId,
                 MessageTypeEnum::Interactive->value,
                 $content
@@ -129,6 +165,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Yuxin\Feishu\Facades\Message;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 
 class SendFeishuNotification implements ShouldQueue
@@ -142,7 +179,7 @@ class SendFeishuNotification implements ShouldQueue
 
     public function handle(): void
     {
-        app('feishu.message')->send(
+        Message::send(
             $this->userId,
             MessageTypeEnum::Text->value,
             $this->message
@@ -156,12 +193,13 @@ class SendFeishuNotification implements ShouldQueue
 ```php
 <?php
 
+use Yuxin\Feishu\Facades\Message;
 use Yuxin\Feishu\Exceptions\HttpException;
 use Yuxin\Feishu\Exceptions\InvalidArgumentException;
 use Illuminate\Support\Facades\Log;
 
 try {
-    app('feishu.message')->send('user_id', 'text', 'Hello');
+    Message::send('user_id', 'text', 'Hello');
 } catch (HttpException $e) {
     Log::error('飞书API错误', ['error' => $e->getMessage()]);
 } catch (InvalidArgumentException $e) {

@@ -237,34 +237,57 @@ $message->send(
 php artisan vendor:publish --tag=feishu-config
 ```
 
-### 使用 Facade（推荐）
+### 使用 Facade
+
+SDK 提供了两种 Facade 使用方式：
+
+#### 独立 Facade（推荐）
+
+每个服务都有独立的 Facade，可以直接调用方法：
 
 ```php
-use Yuxin\Feishu\Facades\Feishu;
+use Yuxin\Feishu\Facades\Message;
+use Yuxin\Feishu\Facades\Group;
+use Yuxin\Feishu\Facades\User;
+use Yuxin\Feishu\Facades\AccessToken;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
-use Yuxin\Feishu\Enums\UserIDTypeEnum;
 
 // 发送消息
-Feishu::message()->send(
+Message::send(
     'user_id',
     MessageTypeEnum::Text->value,
     'Hello from Laravel!'
 );
 
 // 搜索群组
-$group = Feishu::group()->search('测试群组');
+$chatId = Group::search('测试群组');
 
 // 发送群组消息
-Feishu::message()->send(
-    $group,
+Message::send(
+    $chatId,
     MessageTypeEnum::Text->value,
     '群组消息',
-    UserIDTypeEnum::OpenID->value,
+    'open_id',
     ReceiveIDTypeEnum::ChatID->value
 );
 
+// 获取用户ID
+$userId = User::getId('user@example.com');
+
 // 获取访问令牌
+$token = AccessToken::getToken();
+```
+
+#### Feishu 管理器 Facade
+
+通过统一入口访问所有服务：
+
+```php
+use Yuxin\Feishu\Facades\Feishu;
+
+Feishu::message()->send('user_id', 'text', 'Hello!');
+$chatId = Feishu::group()->search('测试群组');
 $token = Feishu::accessToken()->getToken();
 ```
 
@@ -272,10 +295,8 @@ $token = Feishu::accessToken()->getToken();
 
 ```php
 use Yuxin\Feishu\Enums\MessageTypeEnum;
-use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
-use Yuxin\Feishu\Enums\UserIDTypeEnum;
 
-// 发送消息
+// 通过别名
 app('feishu.message')->send(
     'user_id',
     MessageTypeEnum::Text->value,
@@ -283,34 +304,53 @@ app('feishu.message')->send(
 );
 
 // 搜索群组
-$group = app('feishu.group')->search('测试群组');
+$chatId = app('feishu.group')->search('测试群组');
 ```
 
-### 在控制器中使用
+### 依赖注入
+
+SDK 注册了类型别名，支持在控制器或服务类中通过类型提示自动注入：
 
 ```php
 <?php
 
 namespace App\Http\Controllers;
 
-use Yuxin\Feishu\Facades\Feishu;
+use Yuxin\Feishu\Message;
+use Yuxin\Feishu\Group;
 use Yuxin\Feishu\Enums\MessageTypeEnum;
 
 class NotificationController extends Controller
 {
+    public function __construct(
+        private Message $message,
+        private Group $group,
+    ) {}
+
     public function sendNotification()
     {
-        try {
-            Feishu::message()->send(
-                'user_id',
-                MessageTypeEnum::Text->value,
-                '您有一条新的通知'
-            );
+        $this->message->send(
+            'user_id',
+            MessageTypeEnum::Text->value,
+            '您有一条新的通知'
+        );
 
-            return response()->json(['message' => '通知发送成功']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json(['message' => '通知发送成功']);
+    }
+
+    public function sendGroupNotification(string $groupName)
+    {
+        $chatId = $this->group->search($groupName);
+
+        $this->message->send(
+            $chatId,
+            MessageTypeEnum::Text->value,
+            '群组通知',
+            'open_id',
+            'chat_id'
+        );
+
+        return response()->json(['message' => '群组通知发送成功']);
     }
 }
 ```
@@ -414,13 +454,13 @@ $message = new Message('hardcoded_app_id', 'hardcoded_app_secret');
 
 ### 4. 性能优化
 
-对于频繁使用的实例，考虑使用 Facade 或依赖注入：
+SDK 内部使用懒加载缓存，多次调用 `Feishu::message()` 返回同一实例，无需担心重复创建的开销。推荐使用 Facade 或依赖注入：
 
 ```php
-// 使用 Facade（推荐）
-use Yuxin\Feishu\Facades\Feishu;
+// 使用独立 Facade（推荐）
+use Yuxin\Feishu\Facades\Message;
 
-Feishu::message()->send('user_id', 'text', 'Hello');
+Message::send('user_id', 'text', 'Hello');
 
 // 或者使用依赖注入
 public function __construct(

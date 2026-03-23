@@ -267,110 +267,85 @@ $token = $accessToken->getToken();
 echo "访问令牌: " . $token;
 ```
 
-## Feishu Facade
+## Facades
 
-Feishu Facade 提供了一个简洁的静态接口来访问所有 Feishu 服务。这是在 Laravel 环境中使用此 SDK 的推荐方式。
+SDK 提供了两种 Facade 使用方式：独立 Facade 和 Feishu 管理器 Facade。
 
-### 基本用法
+### 独立 Facade（推荐）
+
+每个服务都有独立的 Facade，可以直接调用方法，无需通过管理器中转：
+
+| Facade                             | 类                         | 服务容器别名          |
+| ---------------------------------- | -------------------------- | --------------------- |
+| `Yuxin\Feishu\Facades\Message`     | `Yuxin\Feishu\Message`     | `feishu.message`      |
+| `Yuxin\Feishu\Facades\Group`       | `Yuxin\Feishu\Group`       | `feishu.group`        |
+| `Yuxin\Feishu\Facades\User`        | `Yuxin\Feishu\User`        | `feishu.user`         |
+| `Yuxin\Feishu\Facades\AccessToken` | `Yuxin\Feishu\AccessToken` | `feishu.access_token` |
 
 ```php
-use Yuxin\Feishu\Facades\Feishu;
-
-// 获取访问令牌
-$token = Feishu::accessToken()->getToken();
+use Yuxin\Feishu\Facades\Message;
+use Yuxin\Feishu\Facades\Group;
+use Yuxin\Feishu\Facades\User;
+use Yuxin\Feishu\Facades\AccessToken;
 
 // 发送消息
-Feishu::message()->send('user_id', 'text', 'Hello, World!');
+Message::send('user_id', 'text', 'Hello, World!');
 
 // 搜索群组
-$chatId = Feishu::group()->search('群组名称');
+$chatId = Group::search('群组名称');
 
-// 获取用户信息
-$userId = Feishu::user()->getId('user@example.com');
+// 获取用户ID
+$userId = User::getId('user@example.com');
+
+// 获取访问令牌
+$token = AccessToken::getToken();
 ```
 
-### 可用方法
+### Feishu 管理器 Facade
 
-#### accessToken()
-
-获取 AccessToken 实例。
-
-```php
-$accessToken = Feishu::accessToken();
-$token = $accessToken->getToken();
-```
-
-#### message()
-
-获取 Message 实例用于发送消息。
-
-```php
-$message = Feishu::message();
-$message->send('user_id', 'text', 'Hello!');
-```
-
-#### group()
-
-获取 Group 实例用于群组管理。
-
-```php
-$group = Feishu::group();
-$chatId = $group->search('群组名称');
-```
-
-#### user()
-
-获取 User 实例用于用户管理。
-
-```php
-$user = Feishu::user();
-$userId = $user->getId('user@example.com');
-```
-
-### 完整示例
+通过统一入口访问所有服务：
 
 ```php
 use Yuxin\Feishu\Facades\Feishu;
-use Yuxin\Feishu\Enums\MessageTypeEnum;
-use Yuxin\Feishu\Enums\ReceiveIDTypeEnum;
 
-// 1. 获取访问令牌
+Feishu::message()->send('user_id', 'text', 'Hello!');
+$chatId = Feishu::group()->search('群组名称');
+$userId = Feishu::user()->getId('user@example.com');
 $token = Feishu::accessToken()->getToken();
+```
 
-// 2. 搜索群组
-$chatId = Feishu::group()->search('项目讨论组');
+管理器内部使用懒加载缓存，多次调用 `Feishu::message()` 返回同一实例。
 
-// 3. 发送富文本消息到群组
-Feishu::message()->send(
-    $chatId,
-    MessageTypeEnum::Post->value,
-    [
-        'zh_cn' => [
-            'title' => '项目更新',
-            'content' => [
-                [
-                    'tag' => 'text',
-                    'text' => '项目已进入开发阶段，请各位关注进度。'
-                ]
-            ]
-        ]
-    ],
-    'open_id',
-    ReceiveIDTypeEnum::ChatID->value
-);
+### 依赖注入
 
-// 4. 获取用户ID并发送私信
-$userId = Feishu::user()->getId('developer@example.com');
-Feishu::message()->send(
-    $userId,
-    MessageTypeEnum::Text->value,
-    '请查看项目群组的重要通知'
-);
+SDK 注册了类型别名，支持通过类型提示自动注入：
+
+```php
+use Yuxin\Feishu\Message;
+use Yuxin\Feishu\Group;
+
+class NotificationController extends Controller
+{
+    public function __construct(
+        private Message $message,
+        private Group $group,
+    ) {}
+}
+```
+
+### 服务容器
+
+```php
+// 通过别名
+app('feishu.message')->send('user_id', 'text', 'Hello!');
+
+// 通过类名（等价）
+app(Yuxin\Feishu\Message::class)->send('user_id', 'text', 'Hello!');
 ```
 
 ### Laravel 配置
 
-在使用 Facade 之前，请确保已经在 `.env` 文件中配置了飞书应用信息：
+在使用之前，请确保已经在 `.env` 文件中配置了飞书应用信息：
 
 ```env
 FEISHU_APP_ID=your_app_id

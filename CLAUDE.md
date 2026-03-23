@@ -41,7 +41,11 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 - `User` (`src/User.php`) - User information and ID management
 - `ServiceProvider` (`src/ServiceProvider.php`) - Laravel integration with dependency injection
 - `Feishu` (`src/Feishu.php`) - Manages access to all Feishu services through a unified interface
-- `Facades/Feishu` (`src/Facades/Feishu.php`) - Laravel Facade for convenient access to Feishu services
+- `Facades/Feishu` (`src/Facades/Feishu.php`) - Laravel Facade for the Feishu manager
+- `Facades/Message` (`src/Facades/Message.php`) - Laravel Facade for Message service
+- `Facades/Group` (`src/Facades/Group.php`) - Laravel Facade for Group service
+- `Facades/User` (`src/Facades/User.php`) - Laravel Facade for User service
+- `Facades/AccessToken` (`src/Facades/AccessToken.php`) - Laravel Facade for AccessToken service
 
 **Supporting Structure:**
 
@@ -69,29 +73,35 @@ This is a PHP Feishu (Lark) SDK library that provides a clean interface for inte
 
 The package provides automatic Laravel integration through:
 
-- Service provider with singleton bindings
-- **Facade Support**: Use `Feishu::accessToken()`, `Feishu::message()`, etc. for clean API access
+- Service provider with singleton bindings and class type aliases
+- **Independent Facades**: `Message::send()`, `Group::search()`, `User::getId()`, `AccessToken::getToken()`
+- **Manager Facade**: `Feishu::message()->send()` for unified access
+- **Dependency Injection**: Type-hint `Message`, `Group`, `User`, `AccessToken` in constructors
 - Configuration file publishing
 - Environment variable support (`FEISHU_APP_ID`, `FEISHU_APP_SECRET`)
-- Service container aliases: `feishu.message`, `feishu.group`, `feishu.user`, `feishu.access_token`
-- **Manager Pattern**: Feishu centralizes service creation with lazy loading
+- Service container aliases: `feishu`, `feishu.message`, `feishu.group`, `feishu.user`, `feishu.access_token`
+- **Manager Pattern**: Feishu centralizes service creation with lazy loading cache
 
-**Facade Usage Example:**
+**Usage Examples:**
 
 ```php
+// Independent Facades (recommended)
+use Yuxin\Feishu\Facades\Message;
+use Yuxin\Feishu\Facades\Group;
+
+Message::send('user_id', 'text', 'Hello!');
+$chatId = Group::search('group_name');
+
+// Manager Facade
 use Yuxin\Feishu\Facades\Feishu;
 
-// Get access token
-$token = Feishu::accessToken()->getToken();
-
-// Send message
 Feishu::message()->send('user_id', 'text', 'Hello!');
 
-// Group operations
-$chatId = Feishu::group()->search('group_name');
+// Dependency Injection
+public function __construct(private Message $message) {}
 
-// User operations
-$userInfo = Feishu::user()->getInfo('user_id');
+// Service Container
+app('feishu.message')->send('user_id', 'text', 'Hello!');
 ```
 
 ### Testing Strategy
