@@ -15,18 +15,15 @@ use Yuxin\Feishu\Exceptions\HttpException;
 
 class Group implements GroupInterface
 {
-    protected HttpClient $httpClient;
-
     public function __construct(
         protected string $appId,
         protected string $appSecret,
         protected ?AccessTokenInterface $accessTokenInstance = null,
         protected ?UserInterface $userInstance = null,
-        ?HttpClient $httpClient = null
+        protected ?HttpClient $httpClient = new HttpClient
     ) {
         $this->accessTokenInstance = $accessTokenInstance ?? new AccessToken($this->appId, $this->appSecret);
         $this->userInstance        = $userInstance        ?? new User($this->appId, $this->appSecret);
-        $this->httpClient          = $httpClient          ?? new HttpClient;
     }
 
     public function getHttpClient(): HttpClient

@@ -20,16 +20,13 @@ use function json_encode;
 
 class User implements UserInterface
 {
-    protected HttpClient $httpClient;
-
     public function __construct(
         protected string $appId,
         protected string $appSecret,
         protected ?AccessTokenInterface $accessTokenInstance = null,
-        ?HttpClient $httpClient = null
+        protected ?HttpClient $httpClient = new HttpClient
     ) {
         $this->accessTokenInstance = $accessTokenInstance ?: new AccessToken($this->appId, $this->appSecret);
-        $this->httpClient          = $httpClient ?? new HttpClient;
     }
 
     public function getHttpClient(): HttpClient

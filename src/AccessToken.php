@@ -18,19 +18,7 @@ class AccessToken implements AccessTokenInterface
 {
     protected const CACHE_PREFIX = 'feishu';
 
-    protected HttpClient $httpClient;
-
-    protected CacheInterface $cache;
-
-    public function __construct(
-        protected string $appId,
-        protected string $appSecret,
-        ?CacheInterface $cache = null,
-        ?HttpClient $httpClient = null
-    ) {
-        $this->cache      = $cache      ?? new Psr16Cache(new FilesystemAdapter(namespace: 'feishu', defaultLifetime: 3600));
-        $this->httpClient = $httpClient ?? new HttpClient;
-    }
+    public function __construct(protected string $appId, protected string $appSecret, protected ?CacheInterface $cache = new Psr16Cache(new FilesystemAdapter(namespace: 'feishu', defaultLifetime: 3600)), protected ?HttpClient $httpClient = new HttpClient) {}
 
     public function getHttpClient(): HttpClient
     {
