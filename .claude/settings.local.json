@@ -14,7 +14,8 @@
       "Bash(vendor/bin/phpstan)",
       "Bash(curl:*)",
       "Bash(pkill:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(gh run:*)"
     ],
     "deny": [],
     "ask": []
